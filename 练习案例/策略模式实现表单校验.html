@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>策略模式</title>
+  </head>
+  <body>
+    <form action="http:// xxx.com/register" id="registerForm" method="post">
+      <span>请输入用户名:</span><input type="text" name="userName"/ >
+      <span>请输入密码:</span><input type="text" name="password"/ >
+      <span>请输入手机号:</span><input type="text" name="phoneNumber"/ >
+      <button>提交</button>
+    </form>
+    <script type="text/javascript">
+      // 测录模式重构表单校验
+      // 第一步：封装保存校验规则的策略对象
+      let strategies = {
+        isNonEmpty: function (value, errMsg) {
+          if (value === "") {
+            return errMsg
+          }
+        },
+        minLength: function (value, length, errMsg) {
+          if (value.length < length) {
+            return errMsg
+          }
+        },
+        isMobile: function (value, errMsg) {
+          if (!/(^1[3|5|8][0-9]{9}$)/.test(value)) {
+            return errMsg
+          }
+        },
+      }
+
+      // 第二步：实现 Validator 类，接收用户请求
+      function Validator() {
+        // 保存校验规则
+        this.cache = []
+      }
+
+      // 实现add方法,保存校验规则
+      Validator.prototype.add = function (dom, rule, errMsg) {
+        let ary = rule.split(":") // 将规则名与参数length分离
+        let strategy = ary.shift() // 拿到规则名,此时ary仅剩规则参数length
+        ary.unshift(dom.value) // 参数列表开头添加value
+        ary.push(errMsg) //参数末尾添加errMsg
+        this.cache.push(function () {
+          return strategies[strategy].apply(dom, ary)
+        })
+      }
+
+      // 实现start方法，启动校验
+      Validator.prototype.start = function () {
+        for (let i = 0, validatorFunc; (validatorFunc = this.cache[i++]); ) {
+          // 有errMsg则将其返回
+          let errMsg = validatorFunc()
+          if (errMsg) {
+            return errMsg
+          }
+        }
+      }
+
+      // 第三步：辅助方法
+      let validataFunc = function () {
+        let validator = new Validator()
+        // 添加一些校验规则
+        validator.add(registerForm.userName, "isNonEmpty", "用户名不能为空")
+        validator.add(registerForm.password, "isNonEmpty", "密码不能为空")
+        validator.add(
+          registerForm.password,
+          "minLength:6",
+          "密码长度不能少于6位"
+        )
+        validator.add(registerForm.phoneNumber, "isMobile", "手机号格式不正确")
+
+        let errMsg = validator.start()
+        return errMsg
+      }
+
+      // 调用
+      let registerForm = document.getElementById("registerForm")
+      registerForm.onsubmit = function (e) {
+        e.preventDefault()
+        console.log(666)
+        let errMsg = validataFunc()
+        if (errMsg) {
+          alert(errMsg)
+          return false
+        }
+      }
+    </script>
+  </body>
+</html>
