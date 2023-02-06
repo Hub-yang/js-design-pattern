@@ -39,15 +39,32 @@
         this.cache = []
       }
 
-      // 实现add方法,保存校验规则
-      Validator.prototype.add = function (dom, rule, errMsg) {
-        let ary = rule.split(":") // 将规则名与参数length分离
-        let strategy = ary.shift() // 拿到规则名,此时ary仅剩规则参数length
-        ary.unshift(dom.value) // 参数列表开头添加value
-        ary.push(errMsg) //参数末尾添加errMsg
-        this.cache.push(function () {
-          return strategies[strategy].apply(dom, ary)
-        })
+      // // 实现add方法,保存校验规则（单个校验规则的写法）
+      // Validator.prototype.add = function (dom, rule, errMsg) {
+      //   let ary = rule.split(":") // 将规则名与参数length分离
+      //   let strategy = ary.shift() // 拿到规则名,此时ary仅剩规则参数length
+      //   ary.unshift(dom.value) // 参数列表开头添加value
+      //   ary.push(errMsg) //参数末尾添加errMsg
+      //   this.cache.push(function () {
+      //     return strategies[strategy].apply(dom, ary)
+      //   })
+      // }
+
+      // 实现add方法,保存校验规则（多个校验规则，使用数组的写法）
+      Validator.prototype.add = function (dom, rules) {
+        let self = this
+        for (let i = 0, rule; (rule = rules[i++]); ) {
+          ;(function (rule) {
+            let strategyAry = rule.strategy.split(":")
+            let errMsg = rule.errMsg
+            self.cache.push(function () {
+              let strategy = strategyAry.shift() // 拿到规则名
+              strategyAry.unshift(dom.value) // 参数列表开头添加value
+              strategyAry.push(errMsg) //参数末尾添加errMsg
+              return strategies[strategy].apply(dom, strategyAry)
+            })
+          })(rule)
+        }
       }
 
       // 实现start方法，启动校验
@@ -61,33 +78,46 @@
         }
       }
 
-      // 第三步：辅助方法
+      // 第三步：辅助方法:用户调用方法
       let validataFunc = function () {
         let validator = new Validator()
-        // 添加一些校验规则
-        validator.add(registerForm.userName, "isNonEmpty", "用户名不能为空")
-        validator.add(registerForm.password, "isNonEmpty", "密码不能为空")
-        validator.add(
-          registerForm.password,
-          "minLength:6",
-          "密码长度不能少于6位"
-        )
-        validator.add(registerForm.phoneNumber, "isMobile", "手机号格式不正确")
+        // // 添加一些校验规则：逐个添加
+        // validator.add(registerForm.userName, "isNonEmpty", "用户名不能为空")
+        // validator.add(registerForm.userName, "minLength:8", "用户名不能少于8位")
+        // validator.add(registerForm.password, "isNonEmpty", "密码不能为空")
+        // validator.add(
+        //   registerForm.password,
+        //   "minLength:6",
+        //   "密码长度不能少于6位"
+        // )
+        // validator.add(registerForm.phoneNumber, "isMobile", "手机号格式不正确")
+
+        // 添加一些校验规则：数组方式添加
+        validator.add(registerForm.userName, [
+          { strategy: "isNonEmpty", errMsg: "用户名不能为空" },
+          { strategy: "minLength:8", errMsg: "用户名不能少于8位" },
+        ])
+        validator.add(registerForm.password, [
+          { strategy: "isNonEmpty", errMsg: "密码不能为空" },
+          { strategy: "minLength:6", errMsg: "密码长度不能少于6位" },
+        ])
+        validator.add(registerForm.phoneNumber, [
+          { strategy: "isMobile", errMsg: "手机号格式不正确" },
+        ])
 
         let errMsg = validator.start()
         return errMsg
       }
 
-      // 调用
       let registerForm = document.getElementById("registerForm")
       registerForm.onsubmit = function (e) {
         e.preventDefault()
-        console.log(666)
         let errMsg = validataFunc()
         if (errMsg) {
           alert(errMsg)
           return false
         }
+        alert("提交成功")
       }
     </script>
   </body>
