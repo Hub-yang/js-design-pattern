@@ -1,0 +1,128 @@
+<body>
+  <button id="button1">click1</button>
+  <button id="button2">click2</button>
+  <button id="button3">click3</button>
+</body>
+<script>
+  let button1 = document.getElementById("button1");
+  let button2 = document.getElementById("button2");
+  let button3 = document.getElementById("button3");
+
+  // // 传统面型对象的命令模式实现
+  // // 定义setCommand函数，负责往按钮上安装命令
+  // function setCommand(button, command) {
+  //   button.onclick = function () {
+  //     command.execute();
+  //   };
+  // }
+  // // 功能对象:命令接收者
+  // let MenuBar = {
+  //   refresh() {
+  //     console.log("刷新菜单目录");
+  //   },
+  // };
+
+  // let SubMenu = {
+  //   add() {
+  //     console.log("增加子菜单");
+  //   },
+  //   del() {
+  //     console.log("删除子菜单");
+  //   },
+  // };
+
+  // // 封装命令类
+  // let RefreshMenuBarCommand = function (receiver) {
+  //   this.receiver = receiver;
+  // };
+
+  // RefreshMenuBarCommand.prototype.execute = function () {
+  //   this.receiver.refresh();
+  // };
+
+  // let AddSubMenuCommand = function (receiver) {
+  //   this.receiver = receiver;
+  // };
+
+  // AddSubMenuCommand.prototype.execute = function () {
+  //   this.receiver.add();
+  // };
+
+  // let DelSubMenuCommand = function (receiver) {
+  //   this.receiver = receiver;
+  // };
+
+  // DelSubMenuCommand.prototype.execute = function () {
+  //   this.receiver.del();
+  // };
+
+  // // 使用命令接收者创建command对象并将其安装到button中
+  // let refreshMenuBarCommand = new RefreshMenuBarCommand(MenuBar);
+  // let addSubMenuCommand = new AddSubMenuCommand(SubMenu);
+  // let delSubMenuCommand = new DelSubMenuCommand(SubMenu);
+
+  // // 安装命令对象
+  // setCommand(button1, refreshMenuBarCommand);
+  // setCommand(button2, addSubMenuCommand);
+  // setCommand(button3, delSubMenuCommand);
+
+  // // 以上是一个很简单的命令模式示例，但从中可以看到我们是如何把请求发送者和请求接收者解耦开的
+
+  // js中使用闭包实现命令模式：为了表明是在使用命令模式，最好约定将执行函数改为调用 execute 方法
+  // 定义安装方法
+  function setCommandByJS(button, command) {
+    button.onclick = function () {
+      command.execute();
+    };
+  }
+
+  // 功能对象:命令接收者
+  let MenuBar = {
+    refresh() {
+      console.log("刷新菜单目录");
+    },
+  };
+
+  let SubMenu = {
+    add() {
+      console.log("增加子菜单");
+    },
+    del() {
+      console.log("删除子菜单");
+    },
+  };
+
+  // 创建闭包，包装命令接收者，生成命令对象
+  function RefreshMenuBarCommand(receiver) {
+    return {
+      execute() {
+        receiver.refresh();
+      },
+    };
+  }
+
+  function AddSubMenuCommand(receiver) {
+    return {
+      execute() {
+        receiver.add();
+      },
+    };
+  }
+
+  function DelSubMenuCommand(receiver) {
+    return {
+      execute() {
+        receiver.del();
+      },
+    };
+  }
+
+  // 创建命令对象并安装到button
+  let refreshMenuBarCommand = new RefreshMenuBarCommand(MenuBar);
+  let addSubMenuCommand = new AddSubMenuCommand(SubMenu);
+  let delSubMenuCommand = new DelSubMenuCommand(SubMenu);
+
+  setCommandByJS(button1, refreshMenuBarCommand);
+  setCommandByJS(button2, addSubMenuCommand);
+  setCommandByJS(button3, delSubMenuCommand);
+</script>
