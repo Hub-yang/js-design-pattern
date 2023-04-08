@@ -1,0 +1,88 @@
+<body>
+  <button id="btn">clickme</button>
+</body>
+
+<script>
+  // 超级宏命令
+  const MacroCommand = function () {
+    return {
+      commandList: [],
+      add(command) {
+        this.commandList.push(command);
+      },
+      execute() {
+        for (let i = 0, command; (command = this.commandList[i++]); ) {
+          command.execute();
+        }
+      },
+    };
+  };
+
+  // 子命令1
+  const openAcCommand = {
+    execute() {
+      console.log("打开空调");
+    },
+  };
+
+  // 子命令2
+  const openTvCommand = {
+    execute() {
+      console.log("打开电视");
+    },
+  };
+
+  // 子命令3
+  const openSoundCommand = {
+    execute() {
+      console.log("打开音响");
+    },
+  };
+
+  // 宏命令1
+  const macroCommand1 = MacroCommand();
+  macroCommand1.add(openTvCommand);
+  macroCommand1.add(openSoundCommand);
+
+  // 子命令4
+  const closeDoorCommand = {
+    execute() {
+      console.log("关门");
+    },
+  };
+
+  // 子命令5
+  const openPcCommand = {
+    execute() {
+      console.log("开电脑");
+    },
+  };
+
+  // 子命令6
+  const openQQCommand = {
+    execute() {
+      console.log("登录QQ");
+    },
+  };
+
+  // 宏命令2
+  const macroCommand2 = MacroCommand();
+  macroCommand2.add(closeDoorCommand);
+  macroCommand2.add(openPcCommand);
+  macroCommand2.add(openQQCommand);
+
+  // 组合超级命令
+  const macroCommand = MacroCommand();
+  macroCommand.add(openAcCommand)
+  macroCommand.add(macroCommand1)
+  macroCommand.add(macroCommand2)
+
+  // 绑定并执行“超级命令”
+  const setCommand = (function (command) {
+    document.getElementById("btn").onclick = function () {
+      command.execute();
+    };
+  })(macroCommand);
+
+  // 为避免往子命令对象中添加命令，通常可以在子命令中也添加add方法，调用时抛出一个错误来提醒用户
+</script>
