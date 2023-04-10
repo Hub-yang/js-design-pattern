@@ -1,0 +1,76 @@
+<body></body>
+<script>
+  // 模板方法模式：一种基于继承的设计模式
+  // 本质就是将公共方法部分抽象成父类，然后子类继承父类，公共部分继承获取，独有部分重写实现
+  // 实例：Coffee and Tea
+
+  // 抽象父类
+  const Beverage = function () {};
+  Beverage.prototype.boilWater = function () {
+    console.log("把水煮沸");
+  };
+  Beverage.prototype.brew = function () {
+    throw new Error("子类必须重写抽象方法");
+  }; // 空方法，由子类重写
+  Beverage.prototype.pourInCup = function () {
+    throw new Error("子类必须重写抽象方法");
+  }; // 空方法，由子类重写
+  Beverage.prototype.addCondiments = function () {
+    throw new Error("子类必须重写抽象方法");
+  }; // 空方法，由子类重写
+  // 新增钩子
+  Beverage.prototype.customerWantsCondiments = function () {
+    return true;
+  };
+  Beverage.prototype.init = function () {
+    this.boilWater();
+    this.brew();
+    this.pourInCup();
+    if (this.customerWantsCondiments()) {
+      this.addCondiments();
+    }
+  };
+
+  // 创建Coffee子类,继承抽象父类
+  const Coffee = function () {};
+  Coffee.prototype = new Beverage(); // 继承
+  Coffee.prototype.brew = function () {
+    console.log("用沸水冲泡咖啡");
+  };
+  Coffee.prototype.pourInCup = function () {
+    console.log("把咖啡倒进杯子");
+  };
+  Coffee.prototype.addCondiments = function () {
+    console.log("加糖和牛奶");
+  };
+  // 子类钩子的具体实现
+  Coffee.prototype.customerWantsCondiments = function () {
+    return window.confirm("请问是否需要加糖和牛奶？");
+  };
+  // 声明Coffee类
+  // const coffee = new Coffee();
+  // coffee.init();
+
+  // 创建Tea子类,继承抽象父类
+  const Tea = function () {};
+  Tea.prototype = new Beverage(); // 继承
+  Tea.prototype.brew = function () {
+    console.log("用沸水浸泡茶叶");
+  };
+  Tea.prototype.pourInCup = function () {
+    console.log("把茶倒进杯子");
+  };
+  Tea.prototype.addCondiments = function () {
+    console.log("加柠檬");
+  };
+  // 声明Coffee类
+  const tea = new Tea();
+  tea.init();
+
+  // 该例子中的Beverage.prototype.init就是所谓的模板方法，因为它封装了子类的算法框架，它作为一个算法的模板，指导子类以何种顺序去执行哪些方法，Beverage.prototype.init方法中，算法中的每一个步骤都清楚地展示在我们眼前
+
+  // 如果需要控制模板方法的执行，可以在抽象类中新增抽象钩子方法，具体执行有子类决定
+  // 比如将咖啡是否需要添加辅料的决定交由子类决定
+  const coffeeWithHook = new Coffee();
+  coffeeWithHook.init();
+</script>
