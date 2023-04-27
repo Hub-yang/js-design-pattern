@@ -49,4 +49,3 @@ const Coffee = Beverage({
 
 const coffee = new Coffee()
 coffee.init()
-
